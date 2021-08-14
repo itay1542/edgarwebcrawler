@@ -1,3 +1,3 @@
-module github.com/goedgar/edgar-web-crawler
+module github.com/itay1542/edgarwebcrawler
 
 go 1.16

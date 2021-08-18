@@ -8,16 +8,14 @@ const (
 )
 
 type OfficerType struct {
-	Id int
-	OfficialTitle string
+	Id              int
+	OfficialTitle   string
 	TitleVariations []string
 }
 
 type CompanyType struct {
-	
 }
 
 type StockExchangeType struct {
 	Id int
-	Symbol
 }

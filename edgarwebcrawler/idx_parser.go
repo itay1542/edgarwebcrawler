@@ -3,6 +3,7 @@ package edgarwebcrawler
 import (
 	"bufio"
 	"errors"
+	"github.com/itay1542/edgarwebcrawler/utils"
 	"io"
 	"strings"
 )
@@ -24,7 +25,7 @@ type SimpleIdxReader struct {
 func NewIdxReader(reader io.Reader) (*SimpleIdxReader, error) {
 	bufReader := bufio.NewReader(reader)
 	for {
-		line, err := readIdxLine(bufReader)
+		line, err := utils.ReadLine(bufReader)
 		if err != nil {
 			break
 		}
@@ -54,7 +55,7 @@ func NewIdxReader(reader io.Reader) (*SimpleIdxReader, error) {
 }
 
 func (p *SimpleIdxReader) ReadRow() (*IdxRow, error) {
-	idxLine, err := readIdxLine(&p.reader)
+	idxLine, err := utils.ReadLine(&p.reader)
 	if err != nil {
 		return nil, err
 	}
@@ -71,20 +72,4 @@ func (p *SimpleIdxReader) ReadRow() (*IdxRow, error) {
 		DateFiled:   date,
 		FormType:    formType,
 	}, nil
-}
-
-func readIdxLine(reader *bufio.Reader) (string, error) {
-	line := ""
-	b, err := reader.ReadByte()
-	if err != nil {
-		return "", err
-	}
-	for b != byte('\n') {
-		line += string(b)
-		b, err = reader.ReadByte()
-		if err != nil {
-			return "", err
-		}
-	}
-	return line, nil
 }

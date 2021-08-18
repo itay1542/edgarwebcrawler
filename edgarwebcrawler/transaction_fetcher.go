@@ -1,7 +1,6 @@
 package edgarwebcrawler
 
 type TransactionParsed struct {
-
 }
 
 type TransactionFetcher interface {

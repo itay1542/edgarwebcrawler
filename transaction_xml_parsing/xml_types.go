@@ -3,80 +3,75 @@ package transaction_xml_parsing
 import "encoding/xml"
 
 type RawOwnershipDocument struct {
-	XMLName xml.Name `xml:"ownershipDocument"`
-	Issuer issuer `xml:"issuer"`
-	ReportingOwner reportingOwner `xml:"reportingOwner"`
-	NonDerivativeTable nonDerivativeTable `xml:"nonDerivativeTable"`
+	XMLName            xml.Name            `xml:"ownershipDocument"`
+	Issuer             Issuer              `xml:"issuer"`
+	ReportingOwner     ReportingOwner      `xml:"reportingOwner"`
+	NonDerivativeTable *NonDerivativeTable `xml:"nonDerivativeTable,omitempty"`
 }
 
-type issuer struct {
-	XMLName xml.Name `xml:"issuer"`
-	IssuerCIK string `xml:"issuerCik"`
-	IssuerName string `xml:"issuerName"`
-	IssuerTradingSymbol string `xml:"issuerTradingSymbol"`
+type Issuer struct {
+	XMLName             xml.Name `xml:"issuer"`
+	IssuerCIK           string   `xml:"issuerCik"`
+	IssuerName          string   `xml:"issuerName"`
+	IssuerTradingSymbol string   `xml:"issuerTradingSymbol"`
 }
 
-type reportingOwner struct {
-	XMLName xml.Name `xml:"reportingOwner"`
-	ReportingOwnerId reportingOwnerId `xml:"reportingOwnerId"`
-	ReportingOwnerRelationship reportingOwnerRelationship `xml:"reportingOwnerRelationship"`
+type ReportingOwner struct {
+	XMLName                    xml.Name                   `xml:"reportingOwner"`
+	ReportingOwnerId           ReportingOwnerId           `xml:"reportingOwnerId"`
+	ReportingOwnerRelationship ReportingOwnerRelationship `xml:"reportingOwnerRelationship"`
 }
 
-type reportingOwnerId struct {
-	XMLName xml.Name `xml:"reportingOwnerId"`
-	ReportingOwnerCIK string `xml:"rptOwnerCik"`
-	ReportingOwnerName string `xml:"rptOwnerName"`
+type ReportingOwnerId struct {
+	XMLName            xml.Name `xml:"reportingOwnerId"`
+	ReportingOwnerCIK  string   `xml:"rptOwnerCik"`
+	ReportingOwnerName string   `xml:"rptOwnerName"`
 }
 
-type reportingOwnerRelationship struct {
-	XMLName xml.Name `xml:"reportingOwnerRelationship"`
-	IsDirector byte `xml:"isDirector"`
-	IsOfficer byte `xml:"isOfficer"`
-	IsTenPercentOwner byte `xml:"isTenPercentOwner"`
-	IsOther byte `xml:"isOther"`
-	OfficerTitle *string `xml:"officerTitle,omitempty"`
-	OtherText *string `xml:"otherText,omitempty"`
+type ReportingOwnerRelationship struct {
+	XMLName           xml.Name `xml:"reportingOwnerRelationship"`
+	IsDirector        byte     `xml:"isDirector"`
+	IsOfficer         byte     `xml:"isOfficer"`
+	IsTenPercentOwner byte     `xml:"isTenPercentOwner"`
+	IsOther           byte     `xml:"isOther"`
+	OfficerTitle      *string  `xml:"officerTitle,omitempty"`
+	OtherText         *string  `xml:"otherText,omitempty"`
 }
 
-type nonDerivativeTable struct {
-	XMLName xml.Name `xml:"nonDerivativeTable"`
-	Transactions *[]nonDerivativeTransaction `xml:"nonDerivativeTransaction,omitempty"`
+type NonDerivativeTable struct {
+	XMLName      xml.Name                    `xml:"nonDerivativeTable"`
+	Transactions *[]NonDerivativeTransaction `xml:"nonDerivativeTransaction,omitempty"`
 }
 
-type nonDerivativeTransaction struct {
-	XMLName xml.Name `xml:"nonDerivativeTransaction"`
-	SecurityTitle hasStringValue `xml:"securityTitle"`
-	TransactionDate hasStringValue `xml:"transactionDate"`
-	TransactionAmounts transactionAmounts `xml:"transactionAmounts"`
-	PostTransactionAmounts postTransactionAmounts `xml:"postTransactionAmounts"`
-	OwnerShipNature ownerShipNature `xml:"ownerShipNature"`
+type NonDerivativeTransaction struct {
+	XMLName                xml.Name               `xml:"nonDerivativeTransaction"`
+	SecurityTitle          HasStringValue         `xml:"securityTitle"`
+	TransactionDate        HasStringValue         `xml:"transactionDate"`
+	TransactionAmounts     TransactionAmounts     `xml:"transactionAmounts"`
+	PostTransactionAmounts PostTransactionAmounts `xml:"postTransactionAmounts"`
+	OwnerShipNature        OwnerShipNature        `xml:"ownerShipNature"`
 }
 
-type hasStringValue struct {
+type HasStringValue struct {
 	Value string `xml:"value"`
 }
 
-type hasFloatValue struct {
+type HasFloatValue struct {
 	Value float64 `xml:"value"`
 }
 
-type hasByteValue struct {
-	Value byte `xml:"value"`
+type TransactionAmounts struct {
+	XMLName                         xml.Name       `xml:"transactionAmounts"`
+	TransactionShares               HasFloatValue  `xml:"transactionShares"`
+	TransactionPricePerShare        HasFloatValue  `xml:"transactionPricePerShare"`
+	TransactionAcquiredDisposedCode HasStringValue `xml:"transactionAcquiredDisposedCode"`
 }
 
-type transactionAmounts struct {
-	XMLName xml.Name `xml:"transactionAmounts"`
-	TransactionShares hasFloatValue `xml:"transactionShares"`
-	TransactionPricePerShare hasFloatValue `xml:"transactionPricePerShare"`
-	TransactionAcquiredDisposedCode hasByteValue `xml:"transactionAcquiredDisposedCode"`
+type PostTransactionAmounts struct {
+	XMLName                         xml.Name      `xml:"postTransactionAmounts"`
+	SharesOwnedFollowingTransaction HasFloatValue `xml:"sharesOwnedFollowingTransaction"`
 }
 
-type postTransactionAmounts struct {
-	XMLName xml.Name `xml:"postTransactionAmounts"`
-	SharesOwnedFollowingTransaction hasFloatValue `xml:"sharesOwnedFollowingTransaction"`
-}
-
-type ownerShipNature struct {
-	XMLName xml.Name `xml:"ownershipNature"`
-	DirectOrIndirectOwnership hasByteValue `xml:"directOrIndirectOwnership"`
+type OwnerShipNature struct {
+	DirectOrIndirectOwnership HasStringValue `xml:"directOrIndirectOwnership"`
 }

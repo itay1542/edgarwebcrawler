@@ -1,0 +1,7 @@
+alphaVantage:
+  host: "https://www.alphavantage.co"
+  apiKey: "KJSH9EJVRUUR5Q8N"
+filter:
+  stock_exchanges:
+    - NASDAQ
+    - NYSE

@@ -5,42 +5,17 @@ import (
 	"github.com/itay1542/edgarwebcrawler/edgarwebcrawler"
 	"github.com/itay1542/edgarwebcrawler/requests"
 	"github.com/itay1542/edgarwebcrawler/transaction_xml_parsing"
+	"gopkg.in/yaml.v2"
 	"log"
 	"os"
 	"time"
 )
 
 func main() {
-	// downloader := edgarwebcrawler.NewIdxDownloader()
-
-	// err := downloader.Download(".\\storage\\indices", "https://www.sec.gov/Archives/edgar/full-index", true, 2006)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	/*uris := ".\\storage\\submission_uris.txt"
-	uriPrefix := "https://www.sec.gov/Archives/"
-	err := filepath.Walk(".\\storage\\indices\\full-index", func(path string, info os.FileInfo, err error) error {
-		if !info.IsDir() {
-			file, err := os.Open(path)
-			if err != nil {
-				return err
-			}
-			defer file.Close()
-
-			parser, err := NewIdxReader(file)
-			fmt.Println(path)
-			if err != nil {
-				return err
-			}
-			saveFiles(parser, uris, uriPrefix)
-		}
-		return nil
-	})
-	if err != nil {
-		log.Fatal(err)
-	}*/
+	var cfg Config
+	readFile(&cfg)
+	fmt.Printf("%+v", cfg)
 	startPipeline()
-
 }
 
 func saveFiles(parser edgarwebcrawler.IdxReader, destFile, addPrefix string) error {

@@ -16,7 +16,7 @@ type IdxReader interface {
 	ReadRow() (*IdxRow, error)
 }
 
-//implements IdxParser
+//SimpleIdxReader implements IdxReader
 type SimpleIdxReader struct {
 	formTypeIndex, companyNameIndex, cikIndex, dateIndex, fileNameIndex int
 	reader                                                              bufio.Reader

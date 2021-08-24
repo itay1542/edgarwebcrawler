@@ -31,6 +31,9 @@ func (s *CommonStockTypeTransactionFilter) Priority() Priority {
 
 func (s *CommonStockTypeTransactionFilter) ShouldKeep(transaction *transaction_xml_parsing.RawOwnershipDocument) (bool, int) {
 	var newTransactionsArray []transaction_xml_parsing.NonDerivativeTransaction
+	if transaction.NonDerivativeTable == nil {
+		return false, 0
+	}
 	newTransactionsArray = *transaction.NonDerivativeTable.Transactions
 	shouldKeep := false
 	removedCount := 0

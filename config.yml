@@ -2,6 +2,12 @@ alphaVantage:
   host: "https://www.alphavantage.co"
   apiKey: "KJSH9EJVRUUR5Q8N"
 filter:
-  stock_exchanges:
+  stockExchanges:
     - NASDAQ
     - NYSE
+db:
+  host: "localhost"
+  port: 5432
+  username: "postgres"
+  password: "postgres"
+  name: "inside_out"

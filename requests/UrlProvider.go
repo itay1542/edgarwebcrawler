@@ -41,7 +41,6 @@ func (t *TextFileSubmissionsUrlProvider) Start(urlC chan<- string) error {
 				log.Println(err)
 				break
 			}
-			log.Println("read line " + submission)
 			urlC <- submission
 		}
 		waitgroup.Done()

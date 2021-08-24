@@ -49,7 +49,7 @@ type NonDerivativeTransaction struct {
 	TransactionDate        HasStringValue         `xml:"transactionDate"`
 	TransactionAmounts     TransactionAmounts     `xml:"transactionAmounts"`
 	PostTransactionAmounts PostTransactionAmounts `xml:"postTransactionAmounts"`
-	OwnerShipNature        OwnerShipNature        `xml:"ownerShipNature"`
+	OwnerShipNature        OwnerShipNature
 }
 
 type HasStringValue struct {
@@ -73,5 +73,6 @@ type PostTransactionAmounts struct {
 }
 
 type OwnerShipNature struct {
+	XMLName                   xml.Name       `xml:"ownershipNature"`
 	DirectOrIndirectOwnership HasStringValue `xml:"directOrIndirectOwnership"`
 }

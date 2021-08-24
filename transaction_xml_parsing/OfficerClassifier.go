@@ -7,13 +7,16 @@ import (
 type OfficerType string
 
 const (
-	CEO OfficerType = "CEO"
-	CFO OfficerType = "CFO"
-	COO OfficerType = "COO"
-	CMO OfficerType = "CMO"
-	CTO OfficerType = "CTO"
-	CAO OfficerType = "CAO"
-	COB OfficerType = "COB"
+	CEO       OfficerType = "CEO"
+	CFO       OfficerType = "CFO"
+	COO       OfficerType = "COO"
+	CMO       OfficerType = "CMO"
+	CTO       OfficerType = "CTO"
+	CAO       OfficerType = "CAO"
+	COB       OfficerType = "COB"
+	CIO       OfficerType = "CIO"
+	CLO       OfficerType = "CLO"
+	PRESIDENT OfficerType = "PRESIDENT"
 )
 
 var (
@@ -46,11 +49,22 @@ var (
 			"cob",
 			"chairman of the board",
 		},
+		CIO: []string{
+			"cio",
+			"information",
+		},
+		CLO: []string{
+			"clo",
+			"legal",
+		},
+		PRESIDENT: []string{
+			"president",
+		},
 	}
 )
 
 type OfficerClassifier interface {
-	GetOfficerType(officerText string) OfficerType
+	GetOfficerType(officerText string) ([]OfficerType, error)
 }
 
 //KeyTokensOfficerClassifier implements OfficerClassifier

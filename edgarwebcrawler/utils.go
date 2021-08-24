@@ -5,6 +5,10 @@ import (
 	"strconv"
 )
 
+const (
+	TRANSACTION_DATE_LAYOUT = "2006-01-02"
+)
+
 func filterSlice(vs []EdgarItem, f func(EdgarItem) bool) []EdgarItem {
 	vsf := make([]EdgarItem, 0)
 	for _, v := range vs {

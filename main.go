@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
+	"github.com/itay1542/edgarwebcrawler/DAL"
 	"github.com/itay1542/edgarwebcrawler/edgarwebcrawler"
 	"github.com/itay1542/edgarwebcrawler/requests"
 	"github.com/itay1542/edgarwebcrawler/transaction_xml_parsing"
-	"gopkg.in/yaml.v2"
+	"github.com/itay1542/edgarwebcrawler/transactions"
+	"github.com/itay1542/edgarwebcrawler/utils"
+	_ "github.com/lib/pq"
 	"log"
 	"os"
 	"time"
@@ -13,9 +16,13 @@ import (
 
 func main() {
 	var cfg Config
-	readFile(&cfg)
-	fmt.Printf("%+v", cfg)
-	startPipeline()
+	utils.ReadConfigFile(&cfg, "config.yml")
+	fmt.Printf("loaded configuration: %+v", cfg)
+	program := initDependencies(&cfg)
+	err := program.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func saveFiles(parser edgarwebcrawler.IdxReader, destFile, addPrefix string) error {
@@ -49,16 +56,35 @@ func saveFiles(parser edgarwebcrawler.IdxReader, destFile, addPrefix string) err
 	return nil
 }
 
-func startPipeline() {
+func initDependencies(config *Config) edgarwebcrawler.Orchestrator {
+	dbConfig := DAL.DBConfiguration{
+		Host:     config.DB.Host,
+		User:     config.DB.Username,
+		Password: config.DB.Password,
+		DBName:   config.DB.Name,
+		Port:     config.DB.Port,
+	}
+	companyGetter := requests.NewAlphaVantageRequester(config.AlphaVantage.Host, config.AlphaVantage.ApiKey)
+	dal := &DAL.PostgresInsideOut{Config: dbConfig}
+	officerClassifier := &transaction_xml_parsing.KeyTokensOfficerClassifier{}
+	commonStockTypeFilter := &transactions.CommonStockTypeTransactionFilter{
+		TargetString: "Common Stock",
+	}
+	stockExchangeTypeFilter := transactions.NewStockExchangeTypeFilter(config.Filter.StockExchanges, companyGetter)
+	filters := []transactions.TransactionFilterer{
+		stockExchangeTypeFilter, commonStockTypeFilter,
+	}
+	submissionHandler := edgarwebcrawler.NewSecSubmissionHandler(dal, filters, officerClassifier, companyGetter)
 	urlProvider := requests.NewUrlProvider("storage\\form4_submission_uris_2016-.txt")
-	edgarRequester := requests.New(10 * time.Second)
+	edgarRequester := requests.New(2 * time.Second)
 	xmlParser := &transaction_xml_parsing.LoadBufferToMemoryXMLExtractor{
 		OpeningTag: "<ownershipDocument>",
 		ClosingTag: "</ownershipDocument>",
 	}
-	orchestrator := edgarwebcrawler.NewOrchestrator(2000, urlProvider, *edgarRequester, xmlParser)
-	err := orchestrator.Run()
+	err := dal.Init()
 	if err != nil {
-		log.Println(err)
+		log.Fatalf("%s", err.Error())
 	}
+	orchestrator := edgarwebcrawler.NewOrchestrator(2000, urlProvider, *edgarRequester, xmlParser, submissionHandler)
+	return orchestrator
 }

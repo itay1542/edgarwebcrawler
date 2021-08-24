@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func ReadConfigFile(cfg *interface{}, path string) {
+func ReadConfigFile(cfg interface{}, path string) {
 	f, err := os.Open(path)
 	if err != nil {
 		processError(err)

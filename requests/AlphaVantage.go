@@ -6,12 +6,8 @@ import (
 	"github.com/itay1542/edgarwebcrawler/DAL"
 	"io"
 	"net/http"
+	"time"
 )
-
-type AlphaVantageConfig struct {
-	host   string `yaml:"host"`
-	apiKey string `yaml:"apiKey"`
-}
 
 type CompanyGetter interface {
 	GetCompanyDetails(symbol string) (*CompanyDetails, error)
@@ -26,12 +22,25 @@ type CompanyDetails struct {
 
 //AlphaVantageRequester implements CompanyGetter
 type AlphaVantageRequester struct {
-	config AlphaVantageConfig
+	host, apiKey string
+}
+
+func NewAlphaVantageRequester(host, apiKey string) *AlphaVantageRequester {
+	return &AlphaVantageRequester{
+		host:   host,
+		apiKey: apiKey,
+	}
 }
 
 func (a AlphaVantageRequester) GetCompanyDetails(symbol string) (*CompanyDetails, error) {
-	url := fmt.Sprintf("%s/query?function=OVERVIEW&symbol=%s&apikey=%s", a.config.host, symbol, a.config.apiKey)
-	response, err := http.Get(url)
+	url := fmt.Sprintf("%s/query?function=OVERVIEW&symbol=%s&apikey=%s", a.host, symbol, a.apiKey)
+	t := &http.Transport{
+		TLSHandshakeTimeout: 2 * time.Second,
+	}
+	c := &http.Client{
+		Transport: t,
+	}
+	response, err := c.Get(url)
 	if err != nil {
 		return nil, err
 	}

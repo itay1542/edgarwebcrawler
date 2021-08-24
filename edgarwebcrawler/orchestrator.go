@@ -11,25 +11,28 @@ type Orchestrator interface {
 }
 
 type ReadyFileOrchestrator struct {
-	urls           chan string
-	submissions    chan []byte
-	running        bool
-	urlProvider    requests.SubmissionUrlProvider
-	edgarRequester requests.EdgarRequester
-	xmlExtractor   transaction_xml_parsing.XMLExtractor
+	urls              chan string
+	submissions       chan []byte
+	running           bool
+	urlProvider       requests.SubmissionUrlProvider
+	edgarRequester    requests.EdgarRequester
+	xmlExtractor      transaction_xml_parsing.XMLExtractor
+	submissionHandler SubmissionHandler
 }
 
 func NewOrchestrator(urlBufferSize uint,
 	urlProvider requests.SubmissionUrlProvider,
 	edgarRequester requests.EdgarRequester,
-	xmlExtractor transaction_xml_parsing.XMLExtractor) *ReadyFileOrchestrator {
+	xmlExtractor transaction_xml_parsing.XMLExtractor,
+	submissionHandler SubmissionHandler) *ReadyFileOrchestrator {
 	return &ReadyFileOrchestrator{
-		urls:           make(chan string, urlBufferSize),
-		submissions:    make(chan []byte),
-		running:        false,
-		urlProvider:    urlProvider,
-		edgarRequester: edgarRequester,
-		xmlExtractor:   xmlExtractor,
+		urls:              make(chan string, urlBufferSize),
+		submissions:       make(chan []byte),
+		running:           false,
+		urlProvider:       urlProvider,
+		edgarRequester:    edgarRequester,
+		xmlExtractor:      xmlExtractor,
+		submissionHandler: submissionHandler,
 	}
 }
 
@@ -45,8 +48,12 @@ func (o *ReadyFileOrchestrator) Run() error {
 			parsed, err := o.xmlExtractor.ExtractXML(submission)
 			if err != nil {
 				log.Print(err)
+				continue
 			}
-			log.Println(parsed.ReportingOwner.ReportingOwnerRelationship)
+			err = o.submissionHandler.HandleSubmission(parsed)
+			if err != nil {
+				log.Print(err)
+			}
 		}
 	}
 }

@@ -4,6 +4,7 @@ import (
 	edgarwebcrawler "github.com/itay1542/edgarwebcrawler/DAL"
 	"github.com/itay1542/edgarwebcrawler/requests"
 	"github.com/itay1542/edgarwebcrawler/transaction_xml_parsing"
+	"log"
 	"strings"
 )
 
@@ -21,7 +22,7 @@ type TransactionFilterer interface {
 
 //CommonStockTypeTransactionFilter implements TransactionFilterer
 type CommonStockTypeTransactionFilter struct {
-	lookForString string
+	TargetString string
 }
 
 func (s *CommonStockTypeTransactionFilter) Priority() Priority {
@@ -34,7 +35,7 @@ func (s *CommonStockTypeTransactionFilter) ShouldKeep(transaction *transaction_x
 	shouldKeep := false
 	removedCount := 0
 	for i, tran := range newTransactionsArray {
-		if strings.Contains(strings.ToLower(tran.SecurityTitle.Value), strings.ToLower(s.lookForString)) {
+		if strings.Contains(strings.ToLower(tran.SecurityTitle.Value), strings.ToLower(s.TargetString)) {
 			shouldKeep = true
 			continue
 		}
@@ -42,6 +43,7 @@ func (s *CommonStockTypeTransactionFilter) ShouldKeep(transaction *transaction_x
 		removedCount++
 		transaction.NonDerivativeTable.Transactions = &newTransactionsArray
 	}
+	log.Printf("Common stock type filter passed: %t", shouldKeep)
 	return shouldKeep, removedCount
 }
 
@@ -80,19 +82,29 @@ type StockExchangeTypeFilter struct {
 	companyGetter requests.CompanyGetter
 }
 
-func (s StockExchangeTypeFilter) ShouldKeep(transaction *transaction_xml_parsing.RawOwnershipDocument) (bool, int) {
+func NewStockExchangeTypeFilter(exchanges []edgarwebcrawler.StockExchange,
+	companyGetter requests.CompanyGetter) *StockExchangeTypeFilter {
+	return &StockExchangeTypeFilter{
+		keepExchanges: exchanges,
+		companyGetter: companyGetter,
+	}
+}
+
+func (s *StockExchangeTypeFilter) ShouldKeep(transaction *transaction_xml_parsing.RawOwnershipDocument) (bool, int) {
 	companyDetails, err := s.companyGetter.GetCompanyDetails(transaction.Issuer.IssuerTradingSymbol)
 	if err != nil {
+		log.Printf("error occured in Stock Exchange type filter: %s", err.Error())
 		return false, 0
 	}
 	for _, val := range s.keepExchanges {
 		if string(val) == strings.ToUpper(string(companyDetails.Exchange)) {
+			log.Printf("Found sought exchange: %s, filter passed", companyDetails.Exchange)
 			return true, 0
 		}
 	}
 	return false, 0
 }
 
-func (s StockExchangeTypeFilter) Priority() Priority {
+func (s *StockExchangeTypeFilter) Priority() Priority {
 	return FIRST
 }

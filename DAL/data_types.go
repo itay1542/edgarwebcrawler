@@ -10,23 +10,22 @@ const (
 )
 
 type Officer struct {
-	ID              uint `gorm:"primaryKey"`
-	OfficialTitle   string
-	TitleVariations []string
+	ID            uint   `gorm:"primaryKey"`
+	OfficialTitle string `gorm:"type:string"`
 }
 
 type Insider struct {
 	ID               uint   `gorm:"primaryKey"`
-	CIK              string `gorm:"unique"`
-	Name             string
-	InsiderPositions []InsiderPosition
+	CIK              string `gorm:"unique;type:string"`
+	Name             string `gorm:"type:string"`
+	InsiderPositions *[]InsiderPosition
 }
 
 type Company struct {
-	ID            uint   `gorm:"primaryKey"`
-	Symbol        string `gorm:"not null;unique"`
-	Name          string
-	Sector        string
+	ID            uint          `gorm:"primaryKey"`
+	Symbol        string        `gorm:"not null;unique"`
+	Name          string        `gorm:"type:string"`
+	Sector        string        `gorm:"type:string"`
 	StockExchange StockExchange `gorm:"not null"`
 }
 
@@ -38,8 +37,7 @@ type InsiderPosition struct {
 	Insider   Insider
 	CompanyID uint
 	Company   Company
-	OfficerID uint
-	Officer   Officer
+	Officers  []*Officer `gorm:"many2many:insider_positions_officers"`
 
 	OfficerText       string
 	OtherText         string

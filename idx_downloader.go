@@ -96,7 +96,10 @@ func getIndex(url string) (*EdgarDirectory, error) {
 		Directory EdgarDirectory `json:"directory"`
 	}
 	var tempParsed tempParsedType
-	json.Unmarshal(data, &tempParsed)
+	err = json.Unmarshal(data, &tempParsed)
+	if err != nil {
+		return nil, err
+	}
 	return &tempParsed.Directory, nil
 }
 

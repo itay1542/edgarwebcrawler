@@ -2,6 +2,7 @@ package edgarwebcrawler
 
 import (
 	"github.com/mmcdole/gofeed"
+	"github.com/thoas/go-funk"
 	"log"
 	"strings"
 	"time"
@@ -17,10 +18,10 @@ type UrlFromRssProvider struct {
 
 func NewUrlFromRssProvider(rssUrl string, sampleFreq time.Duration, sampleDiscarder SampleDiscarder) *UrlFromRssProvider {
 	return &UrlFromRssProvider{
-		rssUrl:     rssUrl,
-		quit:       make(chan bool),
-		parser:     gofeed.NewParser(),
-		sampleFreq: sampleFreq,
+		rssUrl:          rssUrl,
+		quit:            make(chan bool),
+		parser:          gofeed.NewParser(),
+		sampleFreq:      sampleFreq,
 		sampleDiscarder: sampleDiscarder,
 	}
 }
@@ -53,8 +54,10 @@ func (t *UrlFromRssProvider) Stop() {
 }
 
 func (t *UrlFromRssProvider) processItems(items []*gofeed.Item, urlC chan<- string) {
-	for _, item := range items{
-		if !t.sampleDiscarder.CheckSample(item){
+	//reverse it because the most recent entries are the first items in the array
+	//so when we pop from the queue it pops the oldest item
+	for _, item := range funk.Reverse(items).([]*gofeed.Item) {
+		if !t.sampleDiscarder.CheckSample(item) {
 			log.Println("sample already seen")
 			continue
 		}

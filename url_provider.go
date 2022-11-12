@@ -2,7 +2,6 @@ package edgarwebcrawler
 
 import (
 	"bufio"
-	"github.com/itay1542/edgarwebcrawler"
 	"log"
 	"os"
 	"sync"
@@ -36,7 +35,7 @@ func (t *TextFileSubmissionsUrlProvider) Start(urlC chan<- string) error {
 	go func() {
 		fileReader := bufio.NewReader(file)
 		for {
-			submission, err := edgarwebcrawler.ReadLine(fileReader)
+			submission, err := ReadLine(fileReader)
 			if err != nil {
 				log.Println(err)
 				break

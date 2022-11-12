@@ -39,8 +39,10 @@ func (t *UrlFromRssProvider) Start(urlC chan<- string) error {
 				feed, err := t.parser.ParseURL(t.rssUrl)
 				if err != nil {
 					log.Println(err)
+				} else{
+					log.Printf("received %d samples from the RSS\n", len(feed.Items))
+					t.processItems(feed.Items, urlC)
 				}
-				t.processItems(feed.Items, urlC)
 			}
 		}
 	}()

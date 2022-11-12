@@ -1,6 +1,11 @@
 # edgarwebcrawler
 utillity for crawling edgar and reading RSS feeds
 
+To install run
+```bash
+go get github.com/itay1542/edgarwebcrawler
+```
+
 To get started with sampling the RSS feed:
 
 first initialize a discarder. This is the built in default discarder that holds all seen links in memory and discards them by the RSS Guid. 
